@@ -465,6 +465,17 @@ open class SwiftMessages {
      */
     open var pauseBetweenMessages: TimeInterval = 0.5
 
+    /**
+     Suspends dequeing the message queue. Set true for resume.
+     */
+    open var isSuspended: Bool = false {
+        didSet {
+            if !isSuspended {
+                dequeueNext()
+            }
+        }
+    }
+
     /// Type for keeping track of delayed presentations
     fileprivate class Delays {
 
@@ -520,7 +531,7 @@ open class SwiftMessages {
     }
     
     fileprivate func dequeueNext() {
-        guard self.current == nil, queue.count > 0 else { return }
+        guard self.current == nil, queue.count > 0, !isSuspended else { return }
         let current = queue.removeFirst()
         self.current = current
         // Set `autohideToken` before the animation starts in case
